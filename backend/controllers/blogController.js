@@ -1,17 +1,53 @@
-// backend/controllers/blogController.js
+// backend/controllers/blogController.js - UPDATED WITH PAGINATION
 
 const Blog = require('../models/Blog');
 
-// @desc    Get all blogs
-// @route   GET /api/blogs
+// @desc    Get all blogs with pagination, filtering, and sorting
+// @route   GET /api/blogs?page=1&limit=10&category=Technology&sort=-createdAt&search=keyword
 // @access  Public
 const getAllBlogs = async (req, res, next) => {
   try {
-    const blogs = await Blog.find({ disabled: false }).sort({ createdAt: -1 });
+    // Extract query parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const category = req.query.category;
+    const sortBy = req.query.sort || '-createdAt'; // Default: newest first
+    const searchTerm = req.query.search;
+
+    // Build filter object
+    const filter = { disabled: false };
+    
+    if (category && category !== 'All') {
+      filter.category = category;
+    }
+
+    if (searchTerm) {
+      filter.$or = [
+        { title: { $regex: searchTerm, $options: 'i' } },
+        { content: { $regex: searchTerm, $options: 'i' } },
+        { author: { $regex: searchTerm, $options: 'i' } }
+      ];
+    }
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const total = await Blog.countDocuments(filter);
+
+    // Fetch blogs with filters, sorting, and pagination
+    const blogs = await Blog.find(filter)
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit)
+      .select('-__v');
 
     res.status(200).json({
       success: true,
       count: blogs.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
       data: blogs
     });
   } catch (error) {

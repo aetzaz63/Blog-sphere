@@ -4,7 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const blogRoutes = require('./routes/blogRoutes'); // ADD THIS
+const blogRoutes = require('./routes/blogRoutes');
+const followRoutes = require('./routes/followRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -17,7 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/blogs', blogRoutes); // ADD THIS
+app.use('/api/blogs', blogRoutes);
+app.use('/api/follow', followRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
