@@ -13,12 +13,12 @@ const HeroSection = () => {
             A platform for writers, thinkers, and storytellers to publish their ideas and connect with readers worldwide
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href="/blogs" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+            <Link href="/blogs" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
               Start Writing
-            </a>
-            <a href="/blogs" className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+            </Link>
+            <Link href="/blogs" className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
               Read Blogs
-            </a>
+            </Link>
           </div>
         </div>
         
