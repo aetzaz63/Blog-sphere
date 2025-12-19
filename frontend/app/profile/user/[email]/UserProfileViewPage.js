@@ -249,7 +249,7 @@ const UserProfileViewPage = ({ params }) => {
             <BookOpen size={64} className="mx-auto text-gray-300 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No Posts Yet</h2>
             <p className="text-gray-600">
-              {profileUser.fullName} hasn't published any posts yet
+              {`${profileUser.fullName} hasn't published any posts yet`}
             </p>
           </div>
         )}
