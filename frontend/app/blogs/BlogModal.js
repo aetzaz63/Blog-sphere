@@ -170,7 +170,7 @@ const BlogModal = ({ mode, post, posts, setPosts, onClose }) => {
             <div>
               <input type="file" accept="image/*" onChange={handleImageChange} />
               {formData.image && (
-                <img
+                <Image
                   src={formData.image}
                   alt="preview"
                   className="w-full h-40 object-cover mt-3 rounded-lg border"

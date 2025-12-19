@@ -49,7 +49,7 @@ const BlogCard = ({ post, onEdit, onDelete }) => {
           <span>This blog is currently disabled</span>
         </div>
       )}
-      <img
+      <Image
         src={post.image}
         alt={post.title}
         className="w-full h-48 object-cover rounded-t-lg hover:scale-105 transition-transform"

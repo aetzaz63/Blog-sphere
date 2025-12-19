@@ -192,7 +192,7 @@ const BlogDetailPage = ({ params }) => {
           </div>
 
           <div className="px-8 py-6">
-            <img
+            <Image
               src={post.image}
               alt={post.title}
               className="w-full h-96 object-cover rounded-xl shadow-md"
