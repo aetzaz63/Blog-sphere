@@ -1,6 +1,9 @@
 // backend/controllers/blogController.js - UPDATED WITH PAGINATION
 
 const Blog = require('../models/Blog');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
+
 
 // @desc    Get all blogs with pagination, filtering, and sorting
 // @route   GET /api/blogs?page=1&limit=10&category=Technology&sort=-createdAt&search=keyword
@@ -205,6 +208,22 @@ const addRating = async (req, res, next) => {
 
     blog.ratings.push(rating);
     await blog.save();
+
+    // Create notification for blog author if user is authenticated
+    // and not rating their own blog
+    if (req.user && req.user.email !== blog.authorEmail) {
+      await Notification.create({
+        recipient: blog.authorId,
+        recipientEmail: blog.authorEmail,
+        sender: req.user._id,
+        senderName: req.user.username,
+        senderEmail: req.user.email,
+        type: 'rating',
+        message: `${req.user.username} rated your blog "${blog.title}" with ${rating} stars`,
+        blogId: blog._id,
+        blogTitle: blog.title
+      });
+    }
 
     res.status(200).json({
       success: true,
