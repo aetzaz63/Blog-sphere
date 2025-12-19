@@ -1,4 +1,4 @@
-// backend/app.js - UPDATED
+// backend/app.js - UPDATED WITH ADMIN ROUTES
 
 const express = require('express');
 const cors = require('cors');
@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const followRoutes = require('./routes/followRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // NEW
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/follow', followRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes); // NEW ADMIN ROUTES
 
 // Health check route
 app.get('/health', (req, res) => {
