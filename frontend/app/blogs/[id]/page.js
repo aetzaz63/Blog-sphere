@@ -7,6 +7,7 @@ import RatingStars from "../RatingStars";
 import CommentSection from "../CommentSection";
 import { UserContext } from "@/app/context/UserContext";
 import { generateMockPosts } from "@/app/content/data";
+import Image from 'next/image';
 
 const BlogDetailPage = ({ params }) => {
   const router = useRouter();
@@ -192,7 +193,7 @@ const BlogDetailPage = ({ params }) => {
           </div>
 
           <div className="px-8 py-6">
-            <img
+            <Image
               src={post.image}
               alt={post.title}
               className="w-full h-96 object-cover rounded-xl shadow-md"

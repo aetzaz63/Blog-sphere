@@ -6,6 +6,7 @@ import RatingStars from "./RatingStars";
 import CommentSection from "./CommentSection";
 import { UserContext } from "@/app/context/UserContext";
 import Link from "next/link";
+import Image from 'next/image';
 import { useRouter } from "next/navigation";
 
 const BlogCard = ({ post, onEdit, onDelete }) => {
@@ -49,7 +50,7 @@ const BlogCard = ({ post, onEdit, onDelete }) => {
           <span>This blog is currently disabled</span>
         </div>
       )}
-      <img
+      <Image
         src={post.image}
         alt={post.title}
         className="w-full h-48 object-cover rounded-t-lg hover:scale-105 transition-transform"

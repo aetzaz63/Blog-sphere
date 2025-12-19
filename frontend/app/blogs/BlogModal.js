@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
 import { X, Trash2 } from "lucide-react";
+import Image from 'next/image';
 import { UserContext } from "@/app/context/UserContext";
 
 const BlogModal = ({ mode, post, posts, setPosts, onClose }) => {
@@ -170,7 +171,7 @@ const BlogModal = ({ mode, post, posts, setPosts, onClose }) => {
             <div>
               <input type="file" accept="image/*" onChange={handleImageChange} />
               {formData.image && (
-                <img
+                <Image
                   src={formData.image}
                   alt="preview"
                   className="w-full h-40 object-cover mt-3 rounded-lg border"
