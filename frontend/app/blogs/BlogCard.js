@@ -53,6 +53,8 @@ const BlogCard = ({ post, onEdit, onDelete }) => {
       <Image
         src={post.image}
         alt={post.title}
+        width={400}
+        height={250}
         className="w-full h-48 object-cover rounded-t-lg hover:scale-105 transition-transform"
       />
       <div className="p-6">
