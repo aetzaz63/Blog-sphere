@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserContext } from '@/app/context/UserContext';
+import { authAPI } from '@/app/lib/api';
 
 // ✅ Validation schema
 const loginSchema = Yup.object().shape({
@@ -17,8 +18,9 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { login } = useContext(UserContext); // ✅ get login() function from context
+  const { login } = useContext(UserContext);
 
   const {
     register,
@@ -28,32 +30,82 @@ const LoginPage = () => {
     resolver: yupResolver(loginSchema),
   });
 
-  const onSubmit = (data) => {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const matchedUser = users.find(
-      (u) => u.email === data.email && u.password === data.password
-    );
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    setError('');
+    setMessage('');
 
-    if (matchedUser) {
-      if (matchedUser.disabled) {
-        setMessage('');
-        setError('Your account has been disabled. Please contact the administrator.');
-        return;
+    try {
+      console.log('Attempting login with:', { email: data.email });
+
+      // Call backend API
+      const response = await authAPI.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      console.log('Login response:', response);
+
+      // Handle successful login
+      if (response.success) {
+        setMessage('Login successful! Redirecting...');
+
+        // Store JWT token
+        localStorage.setItem('token', response.data.token);
+
+        // Prepare user data for context
+        const userData = {
+          id: response.data.user.id,
+          username: response.data.user.username,
+          fullName: response.data.user.username, // Map for compatibility
+          email: response.data.user.email,
+          role: response.data.user.role,
+          isAdmin: response.data.user.role === 'admin',
+        };
+
+        // Update context
+        login(userData);
+
+        // Also save to localStorage for backwards compatibility
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const existingUserIndex = users.findIndex(u => u.email === data.email);
+        
+        if (existingUserIndex === -1) {
+          // Add user if not exists
+          users.push({
+            fullName: response.data.user.username,
+            email: response.data.user.email,
+            password: data.password, // Store for localStorage compatibility
+          });
+          localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        // Redirect after delay
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
+      }
+    } catch (err) {
+      // Extract user-friendly error message
+      let errorMsg = err.message || 'Login failed. Please try again.';
+
+      // Handle specific error cases
+      if (errorMsg.includes('Invalid email or password')) {
+        errorMsg = '❌ Invalid email or password. Please check your credentials and try again.';
+      } else if (errorMsg.includes('Account is deactivated')) {
+        errorMsg = '🔒 Your account has been deactivated. Please contact support.';
+      } else if (errorMsg.includes('Unable to connect to server')) {
+        errorMsg = '🔌 Unable to connect to server. Please check if the backend is running on http://localhost:5000';
       }
 
-      setError('');
-      setMessage('Login successful! Redirecting to home...');
-      
-      
-      login(matchedUser);
+      setError(errorMsg);
 
-      // ✅ 2. Redirect after delay
-      setTimeout(() => {
-        router.push('/');
-      }, 1500);
-    } else {
-      setMessage('');
-      setError('Invalid email or password.');
+      // Log for debugging in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Login failed:', errorMsg);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,7 +127,8 @@ const LoginPage = () => {
                 type="email"
                 placeholder="your@email.com"
                 {...register('email')}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                disabled={isLoading}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
@@ -90,12 +143,14 @@ const LoginPage = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 {...register('password')}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                disabled={isLoading}
+                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                disabled={isLoading}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -105,29 +160,44 @@ const LoginPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Log In
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                Logging in...
+              </span>
+            ) : (
+              'Log In'
+            )}
           </button>
 
-          {/* ✅ Messages */}
+          {/* Messages */}
           {message && (
-            <div className="mt-4 text-center text-green-600 font-medium">
-              {message}
+            <div className="mt-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
+              <p className="text-green-700 font-medium flex items-center gap-2">
+                <span className="text-xl">✅</span>
+                {message}
+              </p>
             </div>
           )}
           {error && (
-            <div className="mt-4 text-center text-red-600 font-medium">
-              {error}
+            <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+              <p className="text-red-700 font-medium flex items-center gap-2">
+                <span className="text-xl">❌</span>
+                {error}
+              </p>
             </div>
           )}
         </form>
 
         <p className="mt-8 text-center text-sm text-gray-600">
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <button
             onClick={() => router.push('/auth/register')}
-            className="text-blue-600 hover:text-blue-700 font-semibold"
+            disabled={isLoading}
+            className="text-blue-600 hover:text-blue-700 font-semibold disabled:text-gray-400"
           >
             Sign up
           </button>
