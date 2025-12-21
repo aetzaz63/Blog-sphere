@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
 import { X, Trash2 } from "lucide-react";
+import Image from 'next/image';
 import { UserContext } from "@/app/context/UserContext";
 
 const BlogModal = ({ mode, post, posts, setPosts, onClose }) => {

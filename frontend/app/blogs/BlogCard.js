@@ -6,6 +6,7 @@ import RatingStars from "./RatingStars";
 import CommentSection from "./CommentSection";
 import { UserContext } from "@/app/context/UserContext";
 import Link from "next/link";
+import Image from 'next/image';
 import { useRouter } from "next/navigation";
 
 const BlogCard = ({ post, onEdit, onDelete }) => {
@@ -52,6 +53,8 @@ const BlogCard = ({ post, onEdit, onDelete }) => {
       <Image
         src={post.image}
         alt={post.title}
+        width={400}
+        height={250}
         className="w-full h-48 object-cover rounded-t-lg hover:scale-105 transition-transform"
       />
       <div className="p-6">

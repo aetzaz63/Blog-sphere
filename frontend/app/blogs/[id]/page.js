@@ -7,6 +7,7 @@ import RatingStars from "../RatingStars";
 import CommentSection from "../CommentSection";
 import { UserContext } from "@/app/context/UserContext";
 import { generateMockPosts } from "@/app/content/data";
+import Image from 'next/image';
 
 const BlogDetailPage = ({ params }) => {
   const router = useRouter();
