@@ -196,6 +196,8 @@ const BlogDetailPage = ({ params }) => {
             <Image
               src={post.image}
               alt={post.title}
+              width={800}
+              height={400}
               className="w-full h-96 object-cover rounded-xl shadow-md"
             />
           </div>
